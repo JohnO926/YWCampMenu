@@ -41,6 +41,13 @@ body{font-family:Georgia,serif;background:#f3f4f0;min-height:100vh;padding:20px}
 .tags{display:flex;gap:3px;flex-wrap:wrap}
 .tag{font-size:9px;padding:1px 5px;border-radius:8px;background:#dcfce7;color:#166534;white-space:nowrap}
 .hint{font-size:11px;color:#9ca3af;text-align:center;padding:10px 0;font-style:italic}
+.meal-placeholder{border-radius:7px;padding:10px 11px;border:2px dashed #e5e7eb;background:#f5f5f4;min-height:72px;opacity:0.45}
+.drink-section{margin:10px 0 4px;padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.drink-lbl{font-size:11px;font-weight:700;color:#0369a1;white-space:nowrap;min-width:70px}
+.drink-opts{display:flex;gap:8px;flex-wrap:wrap}
+.drink-opt{font-size:12px;padding:5px 14px;border-radius:20px;border:1.5px solid #7dd3fc;background:#fff;cursor:pointer;transition:all .15s;color:#0369a1;font-family:Georgia,serif;white-space:nowrap}
+.drink-opt:hover{border-color:#0284c7;background:#e0f2fe}
+.drink-opt.on{background:#0284c7;border-color:#0284c7;color:#fff;font-weight:700}
 
 /* Swap Panel */
 .swap-panel{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:16px;margin-top:12px}
@@ -823,9 +830,12 @@ const ML = {
 };
 
 // Drinks served at every meal — quantities are per meal, multiplied by meal count in renderShopping
-const DRINKS=[
-  {item:'Powdered drink mix (lemonade/punch)',qty:3,unit:'canisters',uc:9.00,cat:'Other'},
-];
+const DRINK_OPTIONS={
+  'lemonade': {name:'Lemonade',icon:'🍋',item:'Lemonade mix packets (2-qt)',qty:40,unit:'packets',uc:0.35,cat:'Other'},
+  'tang':     {name:'Tang',    icon:'🍊',item:'Tang powder (bulk canister)',qty:3, unit:'canisters',uc:12.00,cat:'Other'},
+  'kool-aid': {name:'Kool-Aid',icon:'🍒',item:'Kool-Aid packets (2-qt, assorted)',qty:40,unit:'packets',uc:0.25,cat:'Other'},
+  'bug-juice':{name:'Bug Juice',icon:'🐛',item:'Bug Juice drink mix (bulk canister)',qty:3,unit:'canisters',uc:10.00,cat:'Other'},
+};
 
 const DAYS=[
   {id:'day1',label:'Day 1',date:'Mon, Jun 29',slots:['dinner']},
@@ -876,14 +886,14 @@ const PREV={day1:'Pre-Camp',day2:'Day 1 (Mon Jun 29)',day3:'Day 2 (Tue Jun 30)',
 const DMAP={day1:'Day 1 (Mon Jun 29)',day2:'Day 2 (Tue Jun 30)',day3:'Day 3 (Wed Jul 1)',day4:'Day 4 (Thu Jul 2)'};
 
 let sched={'day1-dinner':'taco-bar','day2-breakfast':'pancake-station','day2-lunch':'sandwich-bar','day2-dinner':'hawaiian-haystacks','day3-breakfast':'breakfast-burrito','day3-lunch':'teriyaki-bowl','day3-dinner':'pulled-pork','day4-breakfast':'muffins-yogurt'};
-let tab='plan', swapping=null, dessertSel=new Set();
+let tab='plan', swapping=null, dessertSel=new Set(), drinkSel=new Set();
 
 function mc(id){return ML[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
 function dc(id){return DESSERTS[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
 function tot(){
   let t=Object.values(sched).reduce((s,id)=>s+mc(id),0);
   const n=Object.keys(sched).length;
-  DRINKS.forEach(d=>t+=d.qty*n*d.uc);
+  drinkSel.forEach(id=>{const d=DRINK_OPTIONS[id];t+=d.qty*n*d.uc;});
   dessertSel.forEach(id=>t+=dc(id));
   return t;
 }
@@ -908,10 +918,15 @@ function render(){
 function setTab(t){tab=t;if(t!=='plan')swapping=null;render();}
 
 function renderPlan(){
+  const ALL_SLOTS=['breakfast','lunch','dinner'];
   let h='<div class="day-grid">';
   DAYS.forEach(day=>{
     h+=`<div class="day-col"><div class="day-hdr"><div class="d1">${day.label}</div><div class="d2">${day.date}</div></div><div class="day-body">`;
-    day.slots.forEach(slot=>{
+    ALL_SLOTS.forEach(slot=>{
+      if(!day.slots.includes(slot)){
+        h+=`<div class="meal-placeholder mc-${slot}"></div>`;
+        return;
+      }
       const key=`${day.id}-${slot}`;const id=sched[key];if(!id)return;
       const m=ML[id];const s=TS[m.type];const sel=swapping===key;
       h+=`<div class="meal-card mc-${m.type}${sel?' sel':''}" style="background:${s.bg};border-color:${sel?s.sel:s.bc}" onclick="pick('${key}')">
@@ -927,6 +942,12 @@ function renderPlan(){
     h+=`</div></div>`;
   });
   h+='</div>';
+  const drinkLabels=Array.from(drinkSel).map(id=>DRINK_OPTIONS[id].name).join(', ');
+  h+=`<div class="drink-section">
+    <span class="drink-lbl">💧 Drink Mix</span>
+    <div class="drink-opts">${Object.entries(DRINK_OPTIONS).map(([id,d])=>`<button class="drink-opt${drinkSel.has(id)?' on':''}" onclick="toggleDrink('${id}')">${d.icon} ${d.name}</button>`).join('')}</div>
+    ${drinkSel.size===0?'<span style="font-size:11px;color:#9ca3af;font-style:italic">None selected — pick one or more</span>':''}
+  </div>`;
   if(swapping){
     const [dayId,slot]=swapping.split('-');const curId=sched[swapping];
     const mtype=ML[curId].type;const day=DAYS.find(d=>d.id===dayId);
@@ -972,6 +993,7 @@ function renderDesserts(){
   return h;
 }
 function toggleDessert(id){if(dessertSel.has(id))dessertSel.delete(id);else dessertSel.add(id);render();}
+function toggleDrink(id){if(drinkSel.has(id))drinkSel.delete(id);else drinkSel.add(id);render();}
 
 function renderShopping(){
   const map={};
@@ -981,7 +1003,8 @@ function renderShopping(){
     else map[k]={...s,total:s.qty*s.uc};
   }));
   const mealCount=Object.keys(sched).length;
-  DRINKS.forEach(d=>{
+  drinkSel.forEach(id=>{
+    const d=DRINK_OPTIONS[id];
     const k=d.item+'||'+d.unit;
     const totalQty=d.qty*mealCount;
     map[k]={...d,qty:totalQty,total:totalQty*d.uc};
@@ -1046,7 +1069,7 @@ function renderBudget(){
   const byCat={};
   Object.values(sched).forEach(id=>ML[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
   const n=Object.keys(sched).length;
-  DRINKS.forEach(d=>{byCat['Other']=(byCat['Other']||0)+d.qty*n*d.uc;});
+  drinkSel.forEach(id=>{const d=DRINK_OPTIONS[id];byCat['Other']=(byCat['Other']||0)+d.qty*n*d.uc;});
   dessertSel.forEach(id=>DESSERTS[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
   const total=Object.values(byCat).reduce((a,b)=>a+b,0);
   const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
