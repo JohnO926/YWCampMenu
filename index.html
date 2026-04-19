@@ -18,36 +18,28 @@ body{font-family:Georgia,serif;background:#f3f4f0;min-height:100vh;padding:20px}
 .content{padding:20px;min-height:400px}
 
 /* Plan Tab */
-.day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
-@media(max-width:700px){.day-grid{grid-template-columns:repeat(2,1fr)}}
-.day-col{border-radius:9px;overflow:hidden;border:1px solid #e5e7eb}
-.day-hdr{background:#1B4332;color:#fff;padding:9px 13px}
+.plan-grid{display:grid;grid-template-columns:46px repeat(4,1fr);gap:8px;margin-bottom:12px;align-items:start}
+@media(max-width:650px){.plan-grid{grid-template-columns:0 repeat(4,1fr)}.slot-lbl{display:none!important}}
+.day-hdr{background:#1B4332;color:#fff;padding:9px 13px;border-radius:8px}
 .day-hdr .d1{font-size:12px;font-weight:700}
 .day-hdr .d2{font-size:11px;opacity:.7;margin-top:1px}
-.day-body{background:#f9fafb;padding:8px;display:flex;flex-direction:column;gap:6px;min-height:60px}
+.slot-lbl{font-size:8px;font-weight:800;letter-spacing:.07em;padding:8px 3px;border-radius:7px;text-align:center;display:flex;align-items:center;justify-content:center;line-height:1.2;writing-mode:vertical-rl;transform:rotate(180deg)}
+.slot-cell{display:flex;flex-direction:column;gap:4px}
 .meal-card{border-radius:7px;padding:10px 11px;cursor:pointer;border:2px solid transparent;transition:all .15s}
 .meal-card:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
-.mc-breakfast{background:#fffbeb;border-color:#fde68a}
-.mc-lunch{background:#eff6ff;border-color:#bfdbfe}
-.mc-dinner{background:#f5f3ff;border-color:#ddd6fe}
-.mc-breakfast.sel{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.2)}
-.mc-lunch.sel{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)}
-.mc-dinner.sel{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.2)}
-.mc-type{font-size:9px;font-weight:800;letter-spacing:.08em;margin-bottom:3px}
 .mc-name{font-size:12px;font-weight:700;color:#111;margin-bottom:3px;line-height:1.3}
 .mc-desc{font-size:10px;color:#6b7280;line-height:1.4;margin-bottom:6px}
 .mc-footer{display:flex;justify-content:space-between;align-items:center;gap:4px}
 .mc-cost{font-size:11px;font-weight:700}
 .tags{display:flex;gap:3px;flex-wrap:wrap}
 .tag{font-size:9px;padding:1px 5px;border-radius:8px;background:#dcfce7;color:#166534;white-space:nowrap}
+.meal-placeholder{border-radius:7px;border:2px dashed #e5e7eb;background:#f5f5f4;opacity:0.35;min-height:80px}
+.drink-row{display:flex;gap:4px;align-items:center;padding:3px 6px;background:rgba(255,255,255,.7);border-radius:6px;flex-wrap:wrap}
+.drink-btn{font-size:16px;padding:2px 3px;border-radius:5px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;transition:all .12s;line-height:1}
+.drink-btn:hover{border-color:#0284c7;background:#f0f9ff}
+.drink-btn.on{border-color:#0284c7;background:#dbeafe}
+.drink-name{font-size:10px;color:#0369a1;font-style:italic}
 .hint{font-size:11px;color:#9ca3af;text-align:center;padding:10px 0;font-style:italic}
-.meal-placeholder{border-radius:7px;padding:10px 11px;border:2px dashed #e5e7eb;background:#f5f5f4;min-height:72px;opacity:0.45}
-.drink-section{margin:10px 0 4px;padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.drink-lbl{font-size:11px;font-weight:700;color:#0369a1;white-space:nowrap;min-width:70px}
-.drink-opts{display:flex;gap:8px;flex-wrap:wrap}
-.drink-opt{font-size:12px;padding:5px 14px;border-radius:20px;border:1.5px solid #7dd3fc;background:#fff;cursor:pointer;transition:all .15s;color:#0369a1;font-family:Georgia,serif;white-space:nowrap}
-.drink-opt:hover{border-color:#0284c7;background:#e0f2fe}
-.drink-opt.on{background:#0284c7;border-color:#0284c7;color:#fff;font-weight:700}
 
 /* Swap Panel */
 .swap-panel{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:16px;margin-top:12px}
@@ -834,7 +826,6 @@ const DRINK_OPTIONS={
   'lemonade': {name:'Lemonade',icon:'🍋',item:'Lemonade mix packets (2-qt)',qty:40,unit:'packets',uc:0.35,cat:'Other'},
   'tang':     {name:'Tang',    icon:'🍊',item:'Tang powder (bulk canister)',qty:3, unit:'canisters',uc:12.00,cat:'Other'},
   'kool-aid': {name:'Kool-Aid',icon:'🍒',item:'Kool-Aid packets (2-qt, assorted)',qty:40,unit:'packets',uc:0.25,cat:'Other'},
-  'bug-juice':{name:'Bug Juice',icon:'🐛',item:'Bug Juice drink mix (bulk canister)',qty:3,unit:'canisters',uc:10.00,cat:'Other'},
 };
 
 const DAYS=[
@@ -879,6 +870,12 @@ const DESSERTS={
     {item:'Costco half-sheet chocolate cake',qty:5,unit:'cakes',uc:22.00,cat:'Desserts'},
   ],
   prep:'Order at least 48 hrs ahead from Costco bakery. Pre-slice each cake before service (~10×5 cuts per sheet). Keep refrigerated until 30 min before serving.'},
+'ice-cream-sandwich':{name:'Cookie Ice Cream Sandwiches',desc:'Two Costco cookies pressed around a scoop of hard-pack vanilla — build your own, crowd favorite',cook:'No cooking — assemble to order',
+  shopping:[
+    {item:'Costco choc chunk cookies (2.5 lb bag)',qty:15,unit:'bags',uc:10.00,cat:'Desserts'},
+    {item:'Hard-pack vanilla ice cream (1 gal)',qty:10,unit:'tubs',uc:6.00,cat:'Desserts'},
+  ],
+  prep:'Keep ice cream in coolers or freezer until service. Set out cookies on a tray. Each person grabs 2 cookies, scoops ice cream in the middle, and presses together. Have a scoop and wax paper squares ready.'},
 };
 
 const CC={'Proteins':'#D85A30','Dairy & Eggs':'#1D9E75','Bread & Grains':'#378ADD','Pantry':'#BA7517','Produce':'#639922','Frozen':'#7F77DD','Other':'#888780','Desserts':'#db2777'};
@@ -886,14 +883,14 @@ const PREV={day1:'Pre-Camp',day2:'Day 1 (Mon Jun 29)',day3:'Day 2 (Tue Jun 30)',
 const DMAP={day1:'Day 1 (Mon Jun 29)',day2:'Day 2 (Tue Jun 30)',day3:'Day 3 (Wed Jul 1)',day4:'Day 4 (Thu Jul 2)'};
 
 let sched={'day1-dinner':'taco-bar','day2-breakfast':'pancake-station','day2-lunch':'sandwich-bar','day2-dinner':'hawaiian-haystacks','day3-breakfast':'breakfast-burrito','day3-lunch':'teriyaki-bowl','day3-dinner':'pulled-pork','day4-breakfast':'muffins-yogurt'};
-let tab='plan', swapping=null, dessertSel=new Set(), drinkSel=new Set();
+let tab='plan', swapping=null, dessertSel=new Set(), mealDrinks={};
 
 function mc(id){return ML[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
 function dc(id){return DESSERTS[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
 function tot(){
   let t=Object.values(sched).reduce((s,id)=>s+mc(id),0);
   const n=Object.keys(sched).length;
-  drinkSel.forEach(id=>{const d=DRINK_OPTIONS[id];t+=d.qty*n*d.uc;});
+  Object.values(mealDrinks).forEach(did=>{const d=DRINK_OPTIONS[did];t+=d.qty*d.uc;});
   dessertSel.forEach(id=>t+=dc(id));
   return t;
 }
@@ -919,35 +916,41 @@ function setTab(t){tab=t;if(t!=='plan')swapping=null;render();}
 
 function renderPlan(){
   const ALL_SLOTS=['breakfast','lunch','dinner'];
-  let h='<div class="day-grid">';
+  // Row-based grid: corner + day headers, then one row per meal type
+  let h='<div class="plan-grid">';
+  // Header row
+  h+='<div></div>';
   DAYS.forEach(day=>{
-    h+=`<div class="day-col"><div class="day-hdr"><div class="d1">${day.label}</div><div class="d2">${day.date}</div></div><div class="day-body">`;
-    ALL_SLOTS.forEach(slot=>{
-      if(!day.slots.includes(slot)){
-        h+=`<div class="meal-placeholder mc-${slot}"></div>`;
-        return;
+    h+=`<div class="day-hdr"><div class="d1">${day.label}</div><div class="d2">${day.date}</div></div>`;
+  });
+  // Meal rows
+  ALL_SLOTS.forEach(slot=>{
+    const s=TS[slot];
+    h+=`<div class="slot-lbl" style="color:${s.tc};background:${s.bg}">${s.lbl}</div>`;
+    DAYS.forEach(day=>{
+      h+='<div class="slot-cell">';
+      if(day.slots.includes(slot)){
+        const key=`${day.id}-${slot}`;const id=sched[key];
+        if(id){
+          const m=ML[id];const sel=swapping===key;
+          h+=`<div class="meal-card${sel?' sel':''}" style="background:${s.bg};border:2px solid ${sel?s.sel:s.bc}" onclick="pick('${key}')">
+            <div class="mc-name">${m.name}</div>
+            <div class="mc-desc">${m.desc}</div>
+            <div class="mc-footer">
+              <div class="tags">${m.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+              <span class="mc-cost" style="color:${s.tc}">${fmt(mc(id))}</span>
+            </div>
+          </div>`;
+          const cur=mealDrinks[key]||null;
+          h+=`<div class="drink-row">${Object.entries(DRINK_OPTIONS).map(([did,d])=>`<button class="drink-btn${cur===did?' on':''}" onclick="setDrink('${key}','${did}')" title="${d.name}">${d.icon}</button>`).join('')}${cur?`<span class="drink-name">${DRINK_OPTIONS[cur].name}</span>`:'<span class="drink-name" style="color:#d1d5db">no drink</span>'}</div>`;
+        }
+      } else {
+        h+='<div class="meal-placeholder"></div>';
       }
-      const key=`${day.id}-${slot}`;const id=sched[key];if(!id)return;
-      const m=ML[id];const s=TS[m.type];const sel=swapping===key;
-      h+=`<div class="meal-card mc-${m.type}${sel?' sel':''}" style="background:${s.bg};border-color:${sel?s.sel:s.bc}" onclick="pick('${key}')">
-        <div class="mc-type" style="color:${s.tc}">${s.lbl}</div>
-        <div class="mc-name">${m.name}</div>
-        <div class="mc-desc">${m.desc}</div>
-        <div class="mc-footer">
-          <div class="tags">${m.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-          <span class="mc-cost" style="color:${s.tc}">${fmt(mc(id))}</span>
-        </div>
-      </div>`;
+      h+='</div>';
     });
-    h+=`</div></div>`;
   });
   h+='</div>';
-  const drinkLabels=Array.from(drinkSel).map(id=>DRINK_OPTIONS[id].name).join(', ');
-  h+=`<div class="drink-section">
-    <span class="drink-lbl">💧 Drink Mix</span>
-    <div class="drink-opts">${Object.entries(DRINK_OPTIONS).map(([id,d])=>`<button class="drink-opt${drinkSel.has(id)?' on':''}" onclick="toggleDrink('${id}')">${d.icon} ${d.name}</button>`).join('')}</div>
-    ${drinkSel.size===0?'<span style="font-size:11px;color:#9ca3af;font-style:italic">None selected — pick one or more</span>':''}
-  </div>`;
   if(swapping){
     const [dayId,slot]=swapping.split('-');const curId=sched[swapping];
     const mtype=ML[curId].type;const day=DAYS.find(d=>d.id===dayId);
@@ -993,7 +996,7 @@ function renderDesserts(){
   return h;
 }
 function toggleDessert(id){if(dessertSel.has(id))dessertSel.delete(id);else dessertSel.add(id);render();}
-function toggleDrink(id){if(drinkSel.has(id))drinkSel.delete(id);else drinkSel.add(id);render();}
+function setDrink(key,did){if(mealDrinks[key]===did)delete mealDrinks[key];else mealDrinks[key]=did;render();}
 
 function renderShopping(){
   const map={};
@@ -1003,11 +1006,11 @@ function renderShopping(){
     else map[k]={...s,total:s.qty*s.uc};
   }));
   const mealCount=Object.keys(sched).length;
-  drinkSel.forEach(id=>{
-    const d=DRINK_OPTIONS[id];
-    const k=d.item+'||'+d.unit;
-    const totalQty=d.qty*mealCount;
-    map[k]={...d,qty:totalQty,total:totalQty*d.uc};
+  const drinkCounts={};
+  Object.values(mealDrinks).forEach(did=>{drinkCounts[did]=(drinkCounts[did]||0)+1;});
+  Object.entries(drinkCounts).forEach(([did,cnt])=>{
+    const d=DRINK_OPTIONS[did];const k=d.item+'||'+d.unit;
+    const tq=d.qty*cnt;map[k]={...d,qty:tq,total:tq*d.uc};
   });
   dessertSel.forEach(id=>DESSERTS[id].shopping.forEach(s=>{
     const k=s.item+'||'+s.unit;
@@ -1069,7 +1072,7 @@ function renderBudget(){
   const byCat={};
   Object.values(sched).forEach(id=>ML[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
   const n=Object.keys(sched).length;
-  drinkSel.forEach(id=>{const d=DRINK_OPTIONS[id];byCat['Other']=(byCat['Other']||0)+d.qty*n*d.uc;});
+  Object.values(mealDrinks).forEach(did=>{const d=DRINK_OPTIONS[did];byCat['Other']=(byCat['Other']||0)+d.qty*d.uc;});
   dessertSel.forEach(id=>DESSERTS[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
   const total=Object.values(byCat).reduce((a,b)=>a+b,0);
   const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);

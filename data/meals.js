@@ -842,6 +842,65 @@ export const MEAL_LIBRARY = {
   },
 };
 
+/** Dessert options — toggled independently, added to shopping list & budget when selected */
+export const DESSERTS = {
+  'peach-cobbler': {
+    name: 'Dutch Oven Peach Cobbler',
+    desc: 'Camp classic — canned peaches under a golden cake mix crust, baked in Dutch ovens',
+    cook: 'Dutch ovens in oven · ~45 min',
+    shopping: [
+      { item: 'Canned sliced peaches (29oz)', qty: 30, unit: 'cans',    uc: 3.00,  cat: 'Desserts' },
+      { item: 'Yellow cake mix',              qty: 15, unit: 'boxes',   uc: 2.50,  cat: 'Desserts' },
+      { item: 'Butter',                       qty: 2,  unit: 'lbs',     uc: 2.60,  cat: 'Dairy & Eggs' },
+      { item: 'Brown sugar',                  qty: 3,  unit: 'lbs',     uc: 1.00,  cat: 'Desserts' },
+      { item: 'Cinnamon (bulk)',              qty: 1,  unit: 'bottle',  uc: 4.00,  cat: 'Pantry' },
+      { item: 'Whipped cream',               qty: 8,  unit: 'cans',    uc: 4.00,  cat: 'Dairy & Eggs' },
+    ],
+    prep: 'Divide peaches into Dutch ovens; top with dry cake mix + brown sugar + cinnamon; lay butter pats on top. Bake at 375°F for 40–45 min until golden and bubbly. Serve with whipped cream.',
+  },
+  'soft-serve': {
+    name: 'Soft Serve Ice Cream',
+    desc: 'Machine provided — just buy the mix bags (~60 servings each). Set up a cup/cone station.',
+    cook: 'Soft serve machine only',
+    shopping: [
+      { item: 'Soft serve mix (60-serving bag)', qty: 4,   unit: 'bags', uc: 30.00, cat: 'Desserts' },
+      { item: 'Waffle cones',                    qty: 200, unit: 'ct',   uc: 0.20,  cat: 'Desserts' },
+      { item: 'Sundae cups',                     qty: 100, unit: 'ct',   uc: 0.10,  cat: 'Desserts' },
+      { item: 'Sprinkles / toppings assortment', qty: 1,   unit: 'set',  uc: 15.00, cat: 'Desserts' },
+    ],
+    prep: 'Chill mix bags ahead of time. Load into machine per manufacturer directions 30 min before service. Set up cup/cone/topping station alongside.',
+  },
+  'cookie-bar': {
+    name: 'Cookie Bar',
+    desc: 'Costco chocolate chunk and variety cookies — set out and done, zero prep',
+    cook: 'No prep — grab and go',
+    shopping: [
+      { item: 'Costco choc chunk cookies (2.5 lb bag)',  qty: 10, unit: 'bags', uc: 10.00, cat: 'Desserts' },
+      { item: 'Costco assorted cookies (2.5 lb bag)',    qty: 5,  unit: 'bags', uc: 10.00, cat: 'Desserts' },
+    ],
+    prep: 'Arrange cookies on platters or in baskets. Label varieties. Set out napkins alongside.',
+  },
+  'chocolate-cake': {
+    name: 'Costco Chocolate Cake',
+    desc: 'Half-sheet chocolate cakes from Costco bakery — order at least 48 hrs ahead, serves ~48 each',
+    cook: 'No prep — order from Costco bakery',
+    shopping: [
+      { item: 'Costco half-sheet chocolate cake', qty: 5, unit: 'cakes', uc: 22.00, cat: 'Desserts' },
+    ],
+    prep: 'Order at least 48 hrs ahead from Costco bakery. Pre-slice each cake before service (~10×5 cuts per sheet). Keep refrigerated until 30 min before serving.',
+  },
+  'ice-cream-sandwich': {
+    name: 'Cookie Ice Cream Sandwiches',
+    desc: 'Two Costco cookies pressed around a scoop of hard-pack vanilla — build your own, crowd favorite',
+    cook: 'No cooking — assemble to order',
+    shopping: [
+      { item: 'Costco choc chunk cookies (2.5 lb bag)', qty: 15, unit: 'bags', uc: 10.00, cat: 'Desserts' },
+      { item: 'Hard-pack vanilla ice cream (1 gal)',    qty: 10, unit: 'tubs', uc: 6.00,  cat: 'Desserts' },
+    ],
+    prep: 'Keep ice cream in coolers or freezer until service. Set out cookies on a tray. Each person grabs 2 cookies, scoops ice cream in the middle, and presses together. Have a scoop and wax paper squares ready.',
+  },
+};
+
 /** Current schedule — maps slot keys to meal IDs */
 export const INITIAL_SCHEDULE = {
   'day1-dinner':     'taco-bar',
