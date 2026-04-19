@@ -39,6 +39,12 @@ body{font-family:Georgia,serif;background:#f3f4f0;min-height:100vh;padding:20px}
 .drink-btn:hover{border-color:#0284c7;background:#f0f9ff}
 .drink-btn.on{border-color:#0284c7;background:#dbeafe}
 .drink-name{font-size:10px;color:#0369a1;font-style:italic}
+.hc-row{display:flex;align-items:center;gap:4px;margin-top:5px;padding:3px 6px;background:rgba(0,0,0,.04);border-radius:5px}
+.hc-btn{width:18px;height:18px;border-radius:3px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:12px;line-height:1;padding:0;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center}
+.hc-btn:hover{background:#f3f4f6;border-color:#9ca3af}
+.hc-num{font-size:11px;font-weight:700;min-width:30px;text-align:center;color:#374151}
+.hc-num.custom{color:#d97706}
+.hc-lbl{font-size:10px;color:#9ca3af}
 .hint{font-size:11px;color:#9ca3af;text-align:center;padding:10px 0;font-style:italic}
 
 /* Swap Panel */
@@ -885,12 +891,13 @@ const DMAP={day1:'Day 1 (Mon Jun 29)',day2:'Day 2 (Tue Jun 30)',day3:'Day 3 (Wed
 
 let sched={'day1-dinner':'taco-bar','day2-breakfast':'pancake-station','day2-lunch':'sandwich-bar','day2-dinner':'hawaiian-haystacks','day3-breakfast':'breakfast-burrito','day3-lunch':'teriyaki-bowl','day3-dinner':'pulled-pork','day4-breakfast':'muffins-yogurt'};
 let tab='plan', swapping=null, dessertSel=new Set(), mealDrinks={};
+let headcount={'day3-dinner':230};
 
-function mc(id){return ML[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
+function hc(key){return headcount[key]||200;}
+function mc(id,key){const f=key?hc(key)/200:1;return ML[id].shopping.reduce((s,i)=>s+i.qty*f*i.uc,0);}
 function dc(id){return DESSERTS[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
 function tot(){
-  let t=Object.values(sched).reduce((s,id)=>s+mc(id),0);
-  const n=Object.keys(sched).length;
+  let t=Object.entries(sched).reduce((s,[key,id])=>s+mc(id,key),0);
   Object.values(mealDrinks).forEach(did=>{const d=DRINK_OPTIONS[did];t+=d.qty*d.uc;});
   dessertSel.forEach(id=>t+=dc(id));
   return t;
@@ -934,13 +941,20 @@ function renderPlan(){
         const key=`${day.id}-${slot}`;const id=sched[key];
         if(id){
           const m=ML[id];const sel=swapping===key;
+          const people=hc(key);
           h+=`<div class="meal-card${sel?' sel':''}" style="background:${s.bg};border:2px solid ${sel?s.sel:s.bc}" onclick="pick('${key}')">
             <div class="mc-name">${m.name}</div>
             <div class="mc-desc">${m.desc}</div>
             <div class="mc-footer">
               <div class="tags">${m.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-              <span class="mc-cost" style="color:${s.tc}">${fmt(mc(id))}</span>
+              <span class="mc-cost" style="color:${s.tc}">${fmt(mc(id,key))}</span>
             </div>
+          </div>`;
+          h+=`<div class="hc-row" onclick="event.stopPropagation()">
+            <button class="hc-btn" onclick="adjHC('${key}',-10)">−</button>
+            <span class="hc-num${people!==200?' custom':''}">${people}</span>
+            <button class="hc-btn" onclick="adjHC('${key}',10)">+</button>
+            <span class="hc-lbl">people</span>
           </div>`;
           const cur=mealDrinks[key]||null;
           const slotDrinks=Object.entries(DRINK_OPTIONS).filter(([,d])=>d.meals.includes(slot));
@@ -963,7 +977,7 @@ function renderPlan(){
       h+=`<div class="swap-opt${cur?' cur':''}" onclick="doSwap('${swapping}','${id}')">
         ${cur?'<div class="cur-badge">current</div>':''}
         <h4>${m.name}</h4><p>${m.desc}</p>
-        <div class="s-footer"><span class="s-cost">${fmt(mc(id))}</span><span class="s-cook">${m.cook}</span></div>
+        <div class="s-footer"><span class="s-cost">${fmt(mc(id,swapping))}</span><span class="s-cook">${m.cook}</span></div>
       </div>`;
     });
     h+=`</div></div>`;
@@ -999,14 +1013,18 @@ function renderDesserts(){
 }
 function toggleDessert(id){if(dessertSel.has(id))dessertSel.delete(id);else dessertSel.add(id);render();}
 function setDrink(key,did){if(mealDrinks[key]===did)delete mealDrinks[key];else mealDrinks[key]=did;render();}
+function adjHC(key,delta){headcount[key]=Math.max(10,(hc(key)+delta));render();}
 
 function renderShopping(){
   const map={};
-  Object.values(sched).forEach(id=>ML[id].shopping.forEach(s=>{
-    const k=s.item+'||'+s.unit;
-    if(map[k]){map[k].qty+=s.qty;map[k].total+=s.qty*s.uc;}
-    else map[k]={...s,total:s.qty*s.uc};
-  }));
+  Object.entries(sched).forEach(([key,id])=>{
+    const f=hc(key)/200;
+    ML[id].shopping.forEach(s=>{
+      const k=s.item+'||'+s.unit;const sq=s.qty*f;const st=sq*s.uc;
+      if(map[k]){map[k].qty+=sq;map[k].total+=st;}
+      else map[k]={...s,qty:sq,total:st};
+    });
+  });
   const mealCount=Object.keys(sched).length;
   const drinkCounts={};
   Object.values(mealDrinks).forEach(did=>{drinkCounts[did]=(drinkCounts[did]||0)+1;});
@@ -1072,7 +1090,7 @@ function renderPrep(){
 
 function renderBudget(){
   const byCat={};
-  Object.values(sched).forEach(id=>ML[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
+  Object.entries(sched).forEach(([key,id])=>{const f=hc(key)/200;ML[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*f*s.uc;});});
   const n=Object.keys(sched).length;
   Object.values(mealDrinks).forEach(did=>{const d=DRINK_OPTIONS[did];byCat['Other']=(byCat['Other']||0)+d.qty*d.uc;});
   dessertSel.forEach(id=>DESSERTS[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
@@ -1081,7 +1099,7 @@ function renderBudget(){
   const maxC=sorted[0]?.[1]||1;
   const mealCosts=Object.entries(sched).map(([key,id])=>{
     const [dayId,slot]=key.split('-');const day=DAYS.find(d=>d.id===dayId);
-    return {label:`${day?.label} ${slot}`,name:ML[id].name,cost:mc(id),type:ML[id].type};
+    return {label:`${day?.label} ${slot}`,name:ML[id].name,cost:mc(id,key),type:ML[id].type,people:hc(key)};
   }).sort((a,b)=>b.cost-a.cost);
 
   let h=`<div class="stat-grid">
@@ -1097,7 +1115,7 @@ function renderBudget(){
   h+='<div class="sec-lbl">By meal</div>';
   mealCosts.forEach(m=>{
     const s=TS[m.type];
-    h+=`<div class="meal-row"><span class="meal-row-lbl">${m.label}</span><span class="meal-row-name">${m.name}</span><span class="meal-row-cost" style="color:${s.tc}">${fmt(m.cost)}</span></div>`;
+    h+=`<div class="meal-row"><span class="meal-row-lbl">${m.label}</span><span class="meal-row-name">${m.name}${m.people!==200?` <span style="font-size:10px;color:#d97706">(${m.people})</span>`:''}</span><span class="meal-row-cost" style="color:${s.tc}">${fmt(m.cost)}</span></div>`;
   });
   return h;
 }
