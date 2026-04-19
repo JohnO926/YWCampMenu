@@ -823,9 +823,10 @@ const ML = {
 
 // Drinks served at every meal — quantities are per meal, multiplied by meal count in renderShopping
 const DRINK_OPTIONS={
-  'lemonade': {name:'Lemonade',icon:'🍋',item:'Lemonade mix packets (2-qt)',qty:40,unit:'packets',uc:0.35,cat:'Other'},
-  'tang':     {name:'Tang',    icon:'🍊',item:'Tang powder (bulk canister)',qty:3, unit:'canisters',uc:12.00,cat:'Other'},
-  'kool-aid': {name:'Kool-Aid',icon:'🍒',item:'Kool-Aid packets (2-qt, assorted)',qty:40,unit:'packets',uc:0.25,cat:'Other'},
+  'milk':     {name:'Milk',    icon:'🥛',item:'Milk (gallon)',                     qty:8, unit:'gal',      uc:4.00, cat:'Dairy & Eggs', meals:['breakfast']},
+  'tang':     {name:'Tang',    icon:'🍊',item:'Tang powder (bulk canister)',        qty:3, unit:'canisters',uc:12.00,cat:'Other',        meals:['breakfast','lunch','dinner']},
+  'lemonade': {name:'Lemonade',icon:'🍋',item:'Lemonade mix packets (2-qt)',        qty:40,unit:'packets', uc:0.35, cat:'Other',        meals:['lunch','dinner']},
+  'kool-aid': {name:'Kool-Aid',icon:'🍒',item:'Kool-Aid packets (2-qt, assorted)', qty:40,unit:'packets', uc:0.25, cat:'Other',        meals:['lunch','dinner']},
 };
 
 const DAYS=[
@@ -942,7 +943,8 @@ function renderPlan(){
             </div>
           </div>`;
           const cur=mealDrinks[key]||null;
-          h+=`<div class="drink-row">${Object.entries(DRINK_OPTIONS).map(([did,d])=>`<button class="drink-btn${cur===did?' on':''}" onclick="setDrink('${key}','${did}')" title="${d.name}">${d.icon}</button>`).join('')}${cur?`<span class="drink-name">${DRINK_OPTIONS[cur].name}</span>`:'<span class="drink-name" style="color:#d1d5db">no drink</span>'}</div>`;
+          const slotDrinks=Object.entries(DRINK_OPTIONS).filter(([,d])=>d.meals.includes(slot));
+          h+=`<div class="drink-row">${slotDrinks.map(([did,d])=>`<button class="drink-btn${cur===did?' on':''}" onclick="setDrink('${key}','${did}')" title="${d.name}">${d.icon}</button>`).join('')}${cur?`<span class="drink-name">${DRINK_OPTIONS[cur].name}</span>`:'<span class="drink-name" style="color:#d1d5db">no drink</span>'}</div>`;
         }
       } else {
         h+='<div class="meal-placeholder"></div>';
