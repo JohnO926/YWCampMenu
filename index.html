@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,serif;background:#f3f4f0;min-height:100vh;padding:20px}
 .app{max-width:1000px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12)}
-.hdr{background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 100%);color:#fff;padding:18px 24px}
+.hdr{background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 100%);color:#fff;padding:18px 24px;position:relative}
 .hdr h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
 .hdr p{font-size:12px;opacity:.7;margin-top:4px;font-style:italic}
 .tabs{display:flex;background:#fff;border-bottom:2px solid #e5e7eb;overflow-x:auto}
@@ -101,6 +101,24 @@ td{padding:6px 10px;border-bottom:1px solid #f3f4f6;color:#374151}
 .meal-row-name{font-size:12px;color:#111;flex:1}
 .meal-row-cost{font-size:12px;font-weight:700}
 
+/* Heart / Dessert */
+.heart-btn{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:22px;opacity:.35;transition:all .2s;line-height:1;padding:2px}
+.heart-btn:hover{opacity:.7;transform:scale(1.18)}
+.heart-btn.active{opacity:1;filter:drop-shadow(0 0 7px rgba(251,113,133,.9))}
+.dessert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:4px}
+.d-card{border-radius:10px;padding:14px;border:2px solid #fce7f3;background:#fff;cursor:pointer;transition:all .18s;position:relative}
+.d-card:hover{border-color:#f9a8d4;transform:translateY(-2px);box-shadow:0 4px 14px rgba(244,114,182,.15)}
+.d-card.on{border-color:#ec4899;background:#fdf2f8;box-shadow:0 0 0 3px rgba(236,72,153,.18)}
+.d-badge{position:absolute;top:10px;right:10px;font-size:18px;line-height:1}
+.d-name{font-size:13px;font-weight:700;color:#111;margin-bottom:5px;margin-right:26px;line-height:1.3}
+.d-desc{font-size:11px;color:#6b7280;line-height:1.4;margin-bottom:8px}
+.d-prep{font-size:10px;color:#9ca3af;line-height:1.4;margin-bottom:8px;font-style:italic}
+.d-footer{display:flex;justify-content:space-between;align-items:center}
+.d-cost{font-size:12px;font-weight:700;color:#be185d}
+.d-cook{font-size:10px;color:#9ca3af}
+.d-note{font-size:12px;color:#9ca3af;font-style:italic;margin-bottom:16px}
+.d-summary{margin-top:16px;padding:12px 16px;background:#fdf2f8;border-radius:9px;border:1.5px solid #f9a8d4;display:flex;justify-content:space-between;align-items:center}
+
 /* Passphrase gate */
 #gate{position:fixed;inset:0;background:#1B4332;display:flex;align-items:center;justify-content:center;z-index:9999}
 #gate-box{background:#fff;border-radius:14px;padding:36px 32px;width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
@@ -128,6 +146,7 @@ td{padding:6px 10px;border-bottom:1px solid #f3f4f6;color:#374151}
   <div class="hdr">
     <h1>Stake YW Camp — Meal Planner</h1>
     <p>June 29 – July 2 &nbsp;·&nbsp; 200 people &nbsp;·&nbsp; 8 meals &nbsp;·&nbsp; Click any meal card to swap it</p>
+    <button class="heart-btn" id="heart-btn" onclick="setTab(tab==='desserts'?'plan':'desserts')" title="Desserts">🤍</button>
   </div>
   <div class="tabs" id="tabs"></div>
   <div class="content" id="content"></div>
@@ -601,6 +620,181 @@ const ML = {
     {when:'morning-of',time:'10:30 AM',task:'Chop romaine, set out parmesan, croutons, dressings',tip:'Keep romaine cold until service; dress to order'},
     {when:'morning-of',time:'11:30 AM',task:'SERVE — Chicken Caesar Wrap Bar',tip:'Wraps warm best — keep in foil stack near flat top edge'},
   ]},
+'dominos-pizza':{name:'Domino\'s Pizza Order',type:'dinner',tags:['no-cook'],
+  desc:'Order Domino\'s large pizzas — variety of toppings, zero kitchen effort, crowd pleaser',
+  cook:'No cooking — order ahead & pickup/delivery',
+  shopping:[
+    {item:'Domino\'s large pizzas (assorted)',qty:65,unit:'pizzas',uc:6.00,cat:'Other'},
+  ],
+  prep:[
+    {when:'afternoon',time:'2:00 PM',task:'Call/order 65 large pizzas for 6 PM delivery/pickup',tip:'Mix cheese, pepperoni, and veggie varieties; confirm order 24 hrs ahead'},
+    {when:'afternoon',time:'5:45 PM',task:'Set out pizzas on tables — open boxes for self-serve',tip:'Keep extras closed/stacked to stay warm; set out napkins & plates'},
+    {when:'afternoon',time:'6:00 PM',task:'SERVE — Domino\'s Pizza',tip:'No dishes, no cleanup — just enjoy'},
+  ]},
+'breakfast-casserole':{name:'Breakfast Casserole',type:'breakfast',tags:['oven','cook-ahead'],
+  desc:'Layers of eggs, sausage, hashbrowns and cheddar baked in hotel pans — make-ahead friendly',
+  cook:'Oven · Assemble night before · Bake morning-of',
+  shopping:[
+    {item:'Eggs',qty:50,unit:'dozen',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Bulk breakfast sausage',qty:20,unit:'lbs',uc:3.50,cat:'Proteins'},
+    {item:'Frozen hashbrowns',qty:25,unit:'lbs',uc:1.50,cat:'Frozen'},
+    {item:'Shredded cheddar',qty:8,unit:'lbs',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Milk',qty:3,unit:'gal',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Green onions',qty:4,unit:'bunches',uc:1.00,cat:'Produce'},
+    {item:'Salt & pepper (bulk)',qty:1,unit:'set',uc:5.00,cat:'Pantry'},
+    {item:'Bread rolls',qty:200,unit:'ct',uc:0.30,cat:'Bread & Grains'},
+  ],
+  prep:[
+    {when:'night-before',time:'Evening',task:'Brown sausage; layer hashbrowns, sausage, cheese in hotel pans',tip:'Whisk eggs + milk; pour over layers; cover & refrigerate overnight'},
+    {when:'morning-of',time:'5:30 AM',task:'Pull casseroles from fridge; preheat oven to 350°F',tip:'Let pans come to room temp 20 min before baking'},
+    {when:'morning-of',time:'6:00 AM',task:'Bake covered at 350°F for 45–55 min until set',tip:'Uncover last 10 min to brown top; internal temp 160°F'},
+    {when:'morning-of',time:'7:00 AM',task:'SERVE — Breakfast Casserole',tip:'Slice into squares; serve with rolls; top with green onions'},
+  ]},
+'cold-cereal-bar':{name:'Cold Cereal Bar',type:'breakfast',tags:['no-cook','grab-and-go'],
+  desc:'Variety of cereals with milk and fresh fruit — zero-effort, fast morning setup',
+  cook:'No cooking needed',
+  shopping:[
+    {item:'Assorted cereal (variety boxes)',qty:30,unit:'boxes',uc:4.50,cat:'Bread & Grains'},
+    {item:'Milk (gallon)',qty:8,unit:'gal',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Fresh berries',qty:10,unit:'lbs',uc:2.50,cat:'Produce'},
+    {item:'Bananas',qty:6,unit:'bunches',uc:1.50,cat:'Produce'},
+    {item:'Individual yogurt cups',qty:200,unit:'ct',uc:0.75,cat:'Dairy & Eggs'},
+    {item:'Orange juice (gallon)',qty:4,unit:'gal',uc:7.00,cat:'Other'},
+  ],
+  prep:[
+    {when:'morning-of',time:'6:30 AM',task:'Set out cereal boxes, bowls, spoons, and milk pitchers',tip:'Group cereal by type; refill milk pitchers as needed'},
+    {when:'morning-of',time:'7:00 AM',task:'SERVE — Cold Cereal Bar',tip:'Put out fruit & yogurt cups alongside; quick and easy'},
+  ]},
+'oatmeal-bar':{name:'Oatmeal Bar',type:'breakfast',tags:['cook-ahead'],
+  desc:'Creamy hot oatmeal cooked in large pots with a full build-your-own toppings bar',
+  cook:'Large stockpots · Hold warm in slow cookers',
+  shopping:[
+    {item:'Rolled oats (quick cook)',qty:30,unit:'lbs',uc:0.75,cat:'Bread & Grains'},
+    {item:'Brown sugar',qty:5,unit:'lbs',uc:1.00,cat:'Pantry'},
+    {item:'Cinnamon (bulk)',qty:1,unit:'bottle',uc:4.00,cat:'Pantry'},
+    {item:'Raisins',qty:5,unit:'lbs',uc:2.50,cat:'Pantry'},
+    {item:'Fresh berries',qty:10,unit:'lbs',uc:2.50,cat:'Produce'},
+    {item:'Bananas',qty:6,unit:'bunches',uc:1.50,cat:'Produce'},
+    {item:'Walnuts (chopped)',qty:3,unit:'lbs',uc:5.00,cat:'Pantry'},
+    {item:'Honey (squeeze bottles)',qty:4,unit:'bottles',uc:5.00,cat:'Pantry'},
+    {item:'Milk (gallon)',qty:4,unit:'gal',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Butter',qty:1,unit:'lbs',uc:2.60,cat:'Dairy & Eggs'},
+  ],
+  prep:[
+    {when:'morning-of',time:'5:45 AM',task:'Bring large pots of water to boil; cook oats in batches',tip:'1 lb dry oats + 3 qts water; stir frequently; season with cinnamon & salt'},
+    {when:'morning-of',time:'6:30 AM',task:'Transfer cooked oatmeal to slow cookers; hold on warm',tip:'Add splash of milk if too thick; stir before serving'},
+    {when:'morning-of',time:'6:45 AM',task:'Set out full toppings bar in small labeled bowls',tip:'Brown sugar, berries, bananas, raisins, walnuts, honey, milk on side'},
+    {when:'morning-of',time:'7:00 AM',task:'SERVE — Oatmeal Bar',tip:'Ladle oatmeal into bowls; toppings bar self-serve'},
+  ]},
+'scrambled-eggs-bacon':{name:'Scrambled Eggs & Bacon',type:'breakfast',tags:['flat-top'],
+  desc:'Classic flat top scrambled eggs and crispy bacon — simple, fast, universally loved',
+  cook:'All flat top',
+  shopping:[
+    {item:'Eggs',qty:50,unit:'dozen',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Bacon',qty:25,unit:'lbs',uc:3.49,cat:'Proteins'},
+    {item:'Butter',qty:2,unit:'lbs',uc:2.60,cat:'Dairy & Eggs'},
+    {item:'Milk',qty:1,unit:'gal',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Shredded cheddar',qty:4,unit:'lbs',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Salt & pepper (bulk)',qty:1,unit:'set',uc:5.00,cat:'Pantry'},
+    {item:'Bread rolls',qty:200,unit:'ct',uc:0.30,cat:'Bread & Grains'},
+    {item:'Mixed fruit',qty:10,unit:'lbs',uc:2.00,cat:'Produce'},
+  ],
+  prep:[
+    {when:'morning-of',time:'5:30 AM',task:'Lay bacon strips on flat top in continuous batches',tip:'Work methodically across the flat top; drain on sheet pans lined with paper towels'},
+    {when:'morning-of',time:'6:00 AM',task:'Whisk eggs with splash of milk in large batches; scramble on flat top',tip:'~3 eggs per person; cook low and slow in sections; fold gently'},
+    {when:'morning-of',time:'6:30 AM',task:'Hold eggs & bacon in covered hotel pans',tip:'Top eggs with cheddar while still hot if desired'},
+    {when:'morning-of',time:'7:00 AM',task:'SERVE — Scrambled Eggs & Bacon',tip:'Replenish eggs in small batches so they stay fresh and fluffy'},
+  ]},
+'french-toast':{name:'French Toast Station',type:'breakfast',tags:['flat-top'],
+  desc:'Thick-cut French toast on the flat top with butter, syrup, powdered sugar and berry toppings bar',
+  cook:'All flat top',
+  shopping:[
+    {item:'Texas toast / thick bread',qty:30,unit:'loaves',uc:3.00,cat:'Bread & Grains'},
+    {item:'Eggs',qty:20,unit:'dozen',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Milk',qty:3,unit:'gal',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Butter',qty:4,unit:'lbs',uc:2.60,cat:'Dairy & Eggs'},
+    {item:'Maple syrup',qty:1,unit:'gal',uc:15.00,cat:'Pantry'},
+    {item:'Powdered sugar',qty:4,unit:'lbs',uc:1.50,cat:'Pantry'},
+    {item:'Cinnamon',qty:4,unit:'bottles',uc:2.00,cat:'Pantry'},
+    {item:'Vanilla extract',qty:2,unit:'bottles',uc:4.00,cat:'Pantry'},
+    {item:'Fresh berries',qty:10,unit:'lbs',uc:2.50,cat:'Produce'},
+    {item:'Whipped cream',qty:6,unit:'cans',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Mixed fruit',qty:8,unit:'lbs',uc:2.00,cat:'Produce'},
+  ],
+  prep:[
+    {when:'morning-of',time:'5:30 AM',task:'Mix egg custard (eggs, milk, cinnamon, vanilla) in large bins',tip:'~20 dozen eggs total; whisk well'},
+    {when:'morning-of',time:'5:45 AM',task:'Preheat flat top; begin cooking French toast in batches',tip:'Butter flat top generously; medium heat; ~2 min per side'},
+    {when:'morning-of',time:'6:30 AM',task:'Set out syrup, powdered sugar, berries, whipped cream bar',tip:'Hold cooked slices in foil pans; replenish continuously'},
+    {when:'morning-of',time:'7:00 AM',task:'SERVE — French Toast Station',tip:'Dust with powdered sugar right before service for presentation'},
+  ]},
+'bagels-cream-cheese':{name:'Bagels & Cream Cheese',type:'breakfast',tags:['no-cook','grab-and-go'],
+  desc:'Assorted bagels with a cream cheese & toppings bar — zero cooking, easy setup',
+  cook:'No cooking needed',
+  shopping:[
+    {item:'Assorted bagels',qty:280,unit:'ct',uc:0.55,cat:'Bread & Grains'},
+    {item:'Cream cheese (plain)',qty:12,unit:'lbs',uc:3.50,cat:'Dairy & Eggs'},
+    {item:'Cream cheese (flavored)',qty:6,unit:'lbs',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Butter',qty:2,unit:'lbs',uc:2.60,cat:'Dairy & Eggs'},
+    {item:'Strawberry jam',qty:4,unit:'jars',uc:4.00,cat:'Pantry'},
+    {item:'Peanut butter',qty:2,unit:'lbs',uc:3.00,cat:'Pantry'},
+    {item:'Fresh fruit',qty:12,unit:'lbs',uc:2.00,cat:'Produce'},
+    {item:'Orange juice (gallon)',qty:6,unit:'gal',uc:6.00,cat:'Other'},
+  ],
+  prep:[
+    {when:'morning-of',time:'6:30 AM',task:'Set out bagels and all spreads in labeled bowls',tip:'Slice bagels ahead; keep in foil-covered trays'},
+    {when:'morning-of',time:'7:00 AM',task:'SERVE — Bagels & Cream Cheese',tip:'No cooking — restock trays as needed'},
+  ]},
+'grilled-chicken-sandwich':{name:'Grilled Chicken Sandwich Bar',type:'lunch',tags:['flat-top'],
+  desc:'Seasoned grilled chicken on toasted buns with a full build-your-own toppings bar',
+  cook:'All flat top',
+  shopping:[
+    {item:'Boneless skinless chicken thighs',qty:60,unit:'lbs',uc:2.19,cat:'Proteins'},
+    {item:'Brioche / Kaiser buns',qty:250,unit:'ct',uc:0.35,cat:'Bread & Grains'},
+    {item:'Sliced cheddar',qty:5,unit:'lbs',uc:4.00,cat:'Dairy & Eggs'},
+    {item:'Sliced Swiss',qty:3,unit:'lbs',uc:5.00,cat:'Dairy & Eggs'},
+    {item:'Lettuce',qty:6,unit:'heads',uc:1.50,cat:'Produce'},
+    {item:'Tomatoes',qty:12,unit:'lbs',uc:1.50,cat:'Produce'},
+    {item:'Red onion',qty:4,unit:'lbs',uc:0.75,cat:'Produce'},
+    {item:'Pickles',qty:4,unit:'jars',uc:4.00,cat:'Pantry'},
+    {item:'Avocados',qty:30,unit:'ct',uc:0.75,cat:'Produce'},
+    {item:'Mayo (32oz)',qty:4,unit:'jars',uc:6.00,cat:'Pantry'},
+    {item:'Honey mustard',qty:3,unit:'bottles',uc:4.00,cat:'Pantry'},
+    {item:'Ranch dressing',qty:2,unit:'bottles',uc:5.00,cat:'Pantry'},
+    {item:'BBQ sauce (18oz)',qty:3,unit:'bottles',uc:5.00,cat:'Pantry'},
+    {item:'Chips (family size)',qty:12,unit:'bags',uc:4.00,cat:'Bread & Grains'},
+    {item:'Mixed fruit',qty:10,unit:'lbs',uc:2.00,cat:'Produce'},
+  ],
+  prep:[
+    {when:'morning-of',time:'9:00 AM',task:'Season chicken thighs with garlic, salt, pepper',tip:'Thighs stay juicy — no pounding needed; trim any excess fat'},
+    {when:'morning-of',time:'10:00 AM',task:'Grill chicken on flat top in batches; melt cheese on top',tip:'Hold warm in hotel pans; slice if large'},
+    {when:'morning-of',time:'10:30 AM',task:'Toast buns on flat top edge; set up full toppings bar',tip:'Label all sauces; keep avocado covered to prevent browning'},
+    {when:'morning-of',time:'11:30 AM',task:'SERVE — Grilled Chicken Sandwich Bar',tip:'Run flat top continuously to replenish chicken through service'},
+  ]},
+'pasta-salad':{name:'Pasta Salad Bar',type:'lunch',tags:['cook-ahead','no-cook'],
+  desc:'Cold rotini pasta salad with Italian dressing, loaded veggie and protein toppings bar',
+  cook:'Cook pasta night before · No-cook assembly',
+  shopping:[
+    {item:'Rotini pasta',qty:20,unit:'lbs',uc:1.00,cat:'Bread & Grains'},
+    {item:'Italian dressing',qty:6,unit:'bottles',uc:4.00,cat:'Pantry'},
+    {item:'Pepperoni',qty:5,unit:'lbs',uc:5.00,cat:'Proteins'},
+    {item:'Salami',qty:4,unit:'lbs',uc:5.00,cat:'Proteins'},
+    {item:'Black olives (cans)',qty:4,unit:'cans',uc:2.50,cat:'Pantry'},
+    {item:'Cherry tomatoes',qty:8,unit:'lbs',uc:2.00,cat:'Produce'},
+    {item:'English cucumbers',qty:10,unit:'ct',uc:1.00,cat:'Produce'},
+    {item:'Bell peppers (mixed)',qty:10,unit:'ct',uc:1.00,cat:'Produce'},
+    {item:'Red onion',qty:3,unit:'lbs',uc:0.75,cat:'Produce'},
+    {item:'Shredded parmesan',qty:4,unit:'lbs',uc:5.00,cat:'Dairy & Eggs'},
+    {item:'Provolone (cubed)',qty:3,unit:'lbs',uc:5.00,cat:'Dairy & Eggs'},
+    {item:'Pepperoncini',qty:3,unit:'jars',uc:4.00,cat:'Pantry'},
+    {item:'Garlic bread (frozen)',qty:10,unit:'loaves',uc:4.00,cat:'Frozen'},
+    {item:'Mixed fruit',qty:10,unit:'lbs',uc:2.00,cat:'Produce'},
+  ],
+  prep:[
+    {when:'night-before',time:'Evening',task:'Cook rotini, toss with Italian dressing, refrigerate overnight',tip:'Slightly undercook — pasta absorbs dressing as it chills'},
+    {when:'morning-of',time:'9:00 AM',task:'Chop veggies, cube cheese, set up full toppings bar',tip:'Keep everything cold; serve buffet-style over pasta'},
+    {when:'morning-of',time:'10:30 AM',task:'Bake garlic bread per package instructions',tip:'Slice and keep warm in foil'},
+    {when:'morning-of',time:'11:30 AM',task:'SERVE — Pasta Salad Bar',tip:'Refresh with a splash of Italian dressing if pasta looks dry'},
+  ]},
 'stir-fry-bowl':{name:'Stir Fry Bowl Bar',type:'dinner',tags:['flat-top','cook-ahead'],
   desc:'Steamed rice with flat top stir-fried chicken and veggies, Asian sauces and toppings bar',
   cook:'Flat top (proteins & veggies) · Rice cookers',
@@ -628,6 +822,11 @@ const ML = {
   ]},
 };
 
+// Drinks served at every meal — quantities are per meal, multiplied by meal count in renderShopping
+const DRINKS=[
+  {item:'Powdered drink mix (lemonade/punch)',qty:3,unit:'canisters',uc:9.00,cat:'Other'},
+];
+
 const DAYS=[
   {id:'day1',label:'Day 1',date:'Mon, Jun 29',slots:['dinner']},
   {id:'day2',label:'Day 2',date:'Tue, Jun 30',slots:['breakfast','lunch','dinner']},
@@ -640,15 +839,54 @@ const TS={
   lunch:    {bg:'#eff6ff',bc:'#bfdbfe',sel:'#3b82f6',tc:'#1e3a8a',lbl:'LUNCH'},
   dinner:   {bg:'#f5f3ff',bc:'#ddd6fe',sel:'#8b5cf6',tc:'#4c1d95',lbl:'DINNER'},
 };
-const CC={'Proteins':'#D85A30','Dairy & Eggs':'#1D9E75','Bread & Grains':'#378ADD','Pantry':'#BA7517','Produce':'#639922','Frozen':'#7F77DD','Other':'#888780'};
+const DESSERTS={
+'peach-cobbler':{name:'Dutch Oven Peach Cobbler',desc:'Camp classic — canned peaches under a golden cake mix crust, baked in Dutch ovens',cook:'Dutch ovens in oven · ~45 min',
+  shopping:[
+    {item:'Canned sliced peaches (29oz)',qty:30,unit:'cans',uc:3.00,cat:'Desserts'},
+    {item:'Yellow cake mix',qty:15,unit:'boxes',uc:2.50,cat:'Desserts'},
+    {item:'Butter',qty:2,unit:'lbs',uc:2.60,cat:'Dairy & Eggs'},
+    {item:'Brown sugar',qty:3,unit:'lbs',uc:1.00,cat:'Desserts'},
+    {item:'Cinnamon (bulk)',qty:1,unit:'bottle',uc:4.00,cat:'Pantry'},
+    {item:'Whipped cream',qty:8,unit:'cans',uc:4.00,cat:'Dairy & Eggs'},
+  ],
+  prep:'Divide peaches into Dutch ovens; top with dry cake mix + brown sugar + cinnamon; lay butter pats on top. Bake at 375°F for 40–45 min until golden and bubbly. Serve with whipped cream.'},
+'soft-serve':{name:'Soft Serve Ice Cream',desc:'Machine provided — just buy the mix bags (~60 servings each). Set up a cup/cone station.',cook:'Soft serve machine only',
+  shopping:[
+    {item:'Soft serve mix (60-serving bag)',qty:4,unit:'bags',uc:30.00,cat:'Desserts'},
+    {item:'Waffle cones',qty:200,unit:'ct',uc:0.20,cat:'Desserts'},
+    {item:'Sundae cups',qty:100,unit:'ct',uc:0.10,cat:'Desserts'},
+    {item:'Sprinkles / toppings assortment',qty:1,unit:'set',uc:15.00,cat:'Desserts'},
+  ],
+  prep:'Chill mix bags ahead of time. Load into machine per manufacturer directions 30 min before service. Set up cup/cone/topping station alongside.'},
+'cookie-bar':{name:'Cookie Bar',desc:'Costco chocolate chunk and variety cookies — set out and done, zero prep',cook:'No prep — grab and go',
+  shopping:[
+    {item:'Costco choc chunk cookies (2.5 lb bag)',qty:10,unit:'bags',uc:10.00,cat:'Desserts'},
+    {item:'Costco assorted cookies (2.5 lb bag)',qty:5,unit:'bags',uc:10.00,cat:'Desserts'},
+  ],
+  prep:'Arrange cookies on platters or in baskets. Label varieties. Set out napkins alongside.'},
+'chocolate-cake':{name:'Costco Chocolate Cake',desc:'Half-sheet chocolate cakes from Costco bakery — order at least 48 hrs ahead, serves ~48 each',cook:'No prep — order from Costco bakery',
+  shopping:[
+    {item:'Costco half-sheet chocolate cake',qty:5,unit:'cakes',uc:22.00,cat:'Desserts'},
+  ],
+  prep:'Order at least 48 hrs ahead from Costco bakery. Pre-slice each cake before service (~10×5 cuts per sheet). Keep refrigerated until 30 min before serving.'},
+};
+
+const CC={'Proteins':'#D85A30','Dairy & Eggs':'#1D9E75','Bread & Grains':'#378ADD','Pantry':'#BA7517','Produce':'#639922','Frozen':'#7F77DD','Other':'#888780','Desserts':'#db2777'};
 const PREV={day1:'Pre-Camp',day2:'Day 1 (Mon Jun 29)',day3:'Day 2 (Tue Jun 30)',day4:'Day 3 (Wed Jul 1)'};
 const DMAP={day1:'Day 1 (Mon Jun 29)',day2:'Day 2 (Tue Jun 30)',day3:'Day 3 (Wed Jul 1)',day4:'Day 4 (Thu Jul 2)'};
 
 let sched={'day1-dinner':'taco-bar','day2-breakfast':'pancake-station','day2-lunch':'sandwich-bar','day2-dinner':'hawaiian-haystacks','day3-breakfast':'breakfast-burrito','day3-lunch':'teriyaki-bowl','day3-dinner':'pulled-pork','day4-breakfast':'muffins-yogurt'};
-let tab='plan', swapping=null;
+let tab='plan', swapping=null, dessertSel=new Set();
 
 function mc(id){return ML[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
-function tot(){return Object.values(sched).reduce((s,id)=>s+mc(id),0);}
+function dc(id){return DESSERTS[id].shopping.reduce((s,i)=>s+i.qty*i.uc,0);}
+function tot(){
+  let t=Object.values(sched).reduce((s,id)=>s+mc(id),0);
+  const n=Object.keys(sched).length;
+  DRINKS.forEach(d=>t+=d.qty*n*d.uc);
+  dessertSel.forEach(id=>t+=dc(id));
+  return t;
+}
 function fmt(n){return '$'+Math.round(n).toLocaleString();}
 function fmtd(n){return '$'+(Math.round(n*100)/100).toFixed(2);}
 function tm(t){const m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return 9999;let h=+m[1];if(m[3].toUpperCase()==='PM'&&h!==12)h+=12;if(m[3].toUpperCase()==='AM'&&h===12)h=0;return h*60+ +m[2];}
@@ -656,11 +894,14 @@ function tm(t){const m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return 9999;let h
 function render(){
   const budget=fmt(tot());
   const tbs=[{id:'plan',l:'Meal Plan'},{id:'shopping',l:'Shopping List'},{id:'prep',l:'Prep Schedule'},{id:'budget',l:`Budget (${budget})`}];
-  document.getElementById('tabs').innerHTML=tbs.map(t=>`<button class="tab${t.id===tab?' active':''}" onclick="setTab('${t.id}')">${t.l}</button>`).join('');
+  document.getElementById('tabs').innerHTML=tbs.map(t=>`<button class="tab${t.id===tab&&tab!=='desserts'?' active':''}" onclick="setTab('${t.id}')">${t.l}</button>`).join('');
+  const hb=document.getElementById('heart-btn');
+  if(hb){hb.className='heart-btn'+(tab==='desserts'?' active':'');hb.textContent=tab==='desserts'?'💗':'🤍';}
   const c=document.getElementById('content');
   if(tab==='plan')c.innerHTML=renderPlan();
   else if(tab==='shopping')c.innerHTML=renderShopping();
   else if(tab==='prep')c.innerHTML=renderPrep();
+  else if(tab==='desserts')c.innerHTML=renderDesserts();
   else c.innerHTML=renderBudget();
 }
 
@@ -710,9 +951,42 @@ function pick(key){swapping=swapping===key?null:key;render();}
 function closeSwap(){swapping=null;render();}
 function doSwap(key,id){sched[key]=id;swapping=null;render();}
 
+function renderDesserts(){
+  let h=`<div style="margin-bottom:18px"><p style="font-size:15px;font-weight:700;color:#be185d;margin-bottom:4px">🍰 Dessert Menu</p><p class="d-note">Click a card to add it to the shopping list and budget. Click again to remove it.</p></div>`;
+  h+='<div class="dessert-grid">';
+  Object.entries(DESSERTS).forEach(([id,d])=>{
+    const on=dessertSel.has(id);
+    h+=`<div class="d-card${on?' on':''}" onclick="toggleDessert('${id}')">
+      <div class="d-badge">${on?'💗':'🤍'}</div>
+      <div class="d-name">${d.name}</div>
+      <div class="d-desc">${d.desc}</div>
+      <div class="d-prep">${d.prep}</div>
+      <div class="d-footer"><span class="d-cost">${fmt(dc(id))}</span><span class="d-cook">${d.cook}</span></div>
+    </div>`;
+  });
+  h+='</div>';
+  if(dessertSel.size>0){
+    const dtot=Array.from(dessertSel).reduce((s,id)=>s+dc(id),0);
+    h+=`<div class="d-summary"><span style="font-size:12px;color:#be185d;font-weight:700">${dessertSel.size} dessert${dessertSel.size>1?'s':''} selected — included in shopping list &amp; budget</span><span style="font-size:16px;font-weight:700;color:#be185d">${fmt(dtot)}</span></div>`;
+  }
+  return h;
+}
+function toggleDessert(id){if(dessertSel.has(id))dessertSel.delete(id);else dessertSel.add(id);render();}
+
 function renderShopping(){
   const map={};
   Object.values(sched).forEach(id=>ML[id].shopping.forEach(s=>{
+    const k=s.item+'||'+s.unit;
+    if(map[k]){map[k].qty+=s.qty;map[k].total+=s.qty*s.uc;}
+    else map[k]={...s,total:s.qty*s.uc};
+  }));
+  const mealCount=Object.keys(sched).length;
+  DRINKS.forEach(d=>{
+    const k=d.item+'||'+d.unit;
+    const totalQty=d.qty*mealCount;
+    map[k]={...d,qty:totalQty,total:totalQty*d.uc};
+  });
+  dessertSel.forEach(id=>DESSERTS[id].shopping.forEach(s=>{
     const k=s.item+'||'+s.unit;
     if(map[k]){map[k].qty+=s.qty;map[k].total+=s.qty*s.uc;}
     else map[k]={...s,total:s.qty*s.uc};
@@ -771,6 +1045,9 @@ function renderPrep(){
 function renderBudget(){
   const byCat={};
   Object.values(sched).forEach(id=>ML[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
+  const n=Object.keys(sched).length;
+  DRINKS.forEach(d=>{byCat['Other']=(byCat['Other']||0)+d.qty*n*d.uc;});
+  dessertSel.forEach(id=>DESSERTS[id].shopping.forEach(s=>{byCat[s.cat]=(byCat[s.cat]||0)+s.qty*s.uc;}));
   const total=Object.values(byCat).reduce((a,b)=>a+b,0);
   const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const maxC=sorted[0]?.[1]||1;
